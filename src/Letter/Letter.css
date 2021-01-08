@@ -1,0 +1,25 @@
+.Letter {
+  background-color: var(--primary);
+  color: var(--primary-text-light);
+  padding: .5rem;
+  width: var(--letter-width);
+  height: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+}
+
+.Letter.not-used {
+  cursor: pointer;
+}
+
+.Letter.used {
+  color: var(--disabled-text);
+}
+
+.Letter.not-used:hover,
+.Letter.pressed{
+  background-color: var(--primary-light);
+  color: var(--primary-text-dark);
+}
