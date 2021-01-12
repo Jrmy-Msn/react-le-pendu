@@ -26,16 +26,20 @@ class App extends Component {
 
   async generateWord(n) {
     let word
+    let aNotLetter = []
     try {
       const file = await fetch(`../resources/dict.fr.${n}.json`)
       const words = await file.json()
       const rand = Math.floor(Math.random() * words.length + 1)
 
       word = words[rand]
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .toUpperCase()
+      aNotLetter = word.split('').filter(l => !l.match(/[A-Z]/))
     } catch(err) {
       word = "APPELEZ LE DEVELOPPEUR IL Y A UNE ERREUR"
     } finally {
-      this.setState({word: word.toUpperCase()})
+      this.setState({word: word, usedLetter: aNotLetter})
     }
   }
 
@@ -90,7 +94,9 @@ class App extends Component {
     const {word, currentKey, usedLetter} = this.state
     return (
       <div className="App">
-        <Word usedLetter={usedLetter} value={word} />
+        <Word
+          usedLetter={usedLetter}
+          value={word} />
         <VirtualKeyboard
           currentKey={currentKey}
           onKeyDown={this.handleKeyDown}
