@@ -1,4 +1,4 @@
-.Letter {
+.VirtualKey {
   background-color: var(--primary);
   color: var(--primary-text-light);
   padding: .5rem;
@@ -8,18 +8,11 @@
   justify-content: center;
   align-items: center;
   user-select: none;
+  font-weight: bold;
 }
 
-.Letter.not-used {
+.VirtualKey.pressed {
   cursor: pointer;
-}
-
-.Letter.used {
-  color: var(--disabled-text);
-}
-
-.Letter.not-used:hover,
-.Letter.pressed{
   background-color: var(--primary-light);
   color: var(--primary-text-dark);
 }

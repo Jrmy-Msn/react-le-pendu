@@ -1,4 +1,4 @@
-.Keyboard[theme="dark"] {
+.VirtualKeyboard[theme="dark"] {
   --primary: #292929;
   --primary-light: #a9a9a9;
   --primary-lighter: #f2f2f2;
@@ -9,7 +9,7 @@
   --disabled-text: #949494;
 }
 
-.Keyboard[theme="light"] {
+.VirtualKeyboard[theme="light"] {
   --primary: #f2f2f2;
   --primary-light: #515151;
   --primary-lighter: #212121;
@@ -20,7 +20,7 @@
   --disabled-text: #949494;
 }
 
-.Keyboard {
+.VirtualKeyboard {
   --letter-width: 8%;
 
   display: flex;
@@ -28,17 +28,17 @@
   background-color: var(--primary);
 }
 
-.keyboard-letters {
+.virtual-keyboard-letters {
   display: flex;
   flex-direction: column;
 }
 
-.keyboard-row {
+.virtual-keyboard-row {
   display: flex;
   justify-content: center;
 }
 
-.keyboard-action {
+.virtual-keyboard-action {
   height: 1.5rem;
   display: flex;
   justify-content: space-around;
@@ -47,7 +47,7 @@
   background-color: var(--primary-light);
 }
 
-.keyboard-action > i {
+.virtual-keyboard-action > i {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -57,7 +57,7 @@
   color: var(--primary-text-dark)
 }
 
-.keyboard-action > i:hover {
+.virtual-keyboard-action > i:hover {
   flex-grow: 1;
   text-align: center;
   background-color: var(--primary-lighter);
