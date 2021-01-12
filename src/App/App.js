@@ -51,9 +51,9 @@ class App extends Component {
   // arrow func for binding this
   feedbackForCurrentKey = (letter) => {
     const {currentKey, usedLetter, word} = this.state
-
-    if (word.includes(letter)) return KEY_FEEDBACK.USED_OK
-    if (usedLetter.includes(letter)) return KEY_FEEDBACK.USED_NOK
+    const letterIsUsed = usedLetter.includes(letter)
+    if (letterIsUsed && word.includes(letter)) return KEY_FEEDBACK.USED_OK
+    if (letterIsUsed) return KEY_FEEDBACK.USED_NOK
     if (letter === currentKey) return KEY_FEEDBACK.PRESSED
 
     return KEY_FEEDBACK.NOT_USED
