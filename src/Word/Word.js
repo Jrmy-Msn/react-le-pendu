@@ -1,13 +1,14 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
+import {QuestionIcon} from "react-line-awesome"
 
 import './Word.css'
 
 import VirtualKey from '../external/VirtualKey/VirtualKey'
 
-const KEY_FEEDBACK = {
-  VISIBLE: 'visible',
+const FEEDBACK_KEY = {
   HIDDEN: 'hidden',
+  VISIBLE: 'visible'
 }
 
 class Word extends Component {
@@ -16,11 +17,32 @@ class Word extends Component {
     usedLetter: PropTypes.arrayOf(PropTypes.string),
   }
 
+  static defaultProps = {
+    usedLetter: []
+  }
+
   // arrow func for binding this
-  letterState = (letter) => {
-    return this.props.usedLetter.includes(letter)
-      ? KEY_FEEDBACK.VISIBLE
-      : KEY_FEEDBACK.HIDDEN
+  feedbackLetter = (letter) => {
+    if (this.props.usedLetter.includes(letter)
+      && this.props.value.includes(letter)) {
+      return FEEDBACK_KEY.VISIBLE
+    }
+
+    return FEEDBACK_KEY.HIDDEN
+  }
+
+  // arrow func for binding this
+  renderLetter = (letter) => {
+    if (this.props.usedLetter.includes(letter)
+      && this.props.value.includes(letter)) {
+      return letter
+    }
+
+    return (
+      <QuestionIcon
+        className="la-lg"
+        aria-hidden="false"/>
+      )
   }
 
   render() {
@@ -33,9 +55,10 @@ class Word extends Component {
           this.props.value.split('')
             .map((vKey, index) => (
               <VirtualKey
+                role="button"
                 key={index}
-                value={vKey}
-                feedback={this.letterState(vKey)}/>
+                value={this.renderLetter(vKey)}
+                feedback={this.feedbackLetter(vKey)}/>
             ))
         }
       </div>
