@@ -13,12 +13,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: .5rem;
 }
 
 .Word .VirtualKey {
   margin: 0 .1rem;
+  min-width: .5rem;
 }
 
 .Word .VirtualKey:hover {
