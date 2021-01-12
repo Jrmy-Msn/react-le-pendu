@@ -1,2 +1,10 @@
 .App {
 }
+
+.App .VirtualKeyboard .VirtualKey.used-ok {
+  background-color: #437c39;
+}
+
+.App .VirtualKeyboard .VirtualKey.used-nok {
+  background-color: #7c3939;
+}
