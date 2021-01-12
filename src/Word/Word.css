@@ -1,0 +1,28 @@
+.Word {
+  --primary: #292929;
+  --primary-light: #a9a9a9;
+  --primary-lighter: #f2f2f2;
+  --primary-dark: #212121;
+  --primary-darker: #141414;
+  --primary-text-light: #fff;
+  --primary-text-dark: #000;
+  --disabled-text: #949494;
+}
+
+.Word {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: .5rem;
+}
+
+.Word .VirtualKey {
+  margin: 0 .1rem;
+}
+
+.Word .VirtualKey:hover {
+  background-color: var(--primary);
+  color: var(--primary-text-light);
+  cursor: default;
+}
