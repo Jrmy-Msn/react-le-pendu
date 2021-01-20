@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-import {QuestionIcon} from "react-line-awesome"
+import {CircleNotchIcon, QuestionIcon, SpinnerIcon} from "react-line-awesome"
 
 import './Word.css'
 
@@ -8,7 +8,7 @@ import VirtualKey from '../external/VirtualKey/VirtualKey'
 
 const FEEDBACK_KEY = {
   HIDDEN: 'hidden',
-  VISIBLE: 'visible'
+  VISIBLE: 'visible',
 }
 
 class Word extends Component {
@@ -48,18 +48,22 @@ class Word extends Component {
   render() {
     return (
       <div
-        role="widget"
         aria-label="Mot à trouver"
         className={`Word`}>
         {
-          this.props.value.split('')
-            .map((vKey, index) => (
-              <VirtualKey
-                role="button"
-                key={index}
-                value={this.renderLetter(vKey)}
-                feedback={this.feedbackLetter(vKey)}/>
-            ))
+          this.props.value === ''
+            ? (
+              <SpinnerIcon
+              className={`la-lg la-spin`}/>)
+            : (
+              this.props.value.split('')
+                .map((vKey, index) => (
+                  <VirtualKey
+                    role="button"
+                    key={index}
+                    value={this.renderLetter(vKey)}
+                    feedback={this.feedbackLetter(vKey)}/>
+              )))
         }
       </div>
     )

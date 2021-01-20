@@ -1,20 +1,22 @@
 import React from 'react'
-import {cleanup, fireEvent, render, screen} from '@testing-library/react'
+import renderer from 'react-test-renderer'
+import {shallow} from 'enzyme'
 
-import {QuestionIcon} from "react-line-awesome";
-import VirtualKey from "../external/VirtualKey/VirtualKey"
-import App from "./App"
-import Word from "../Word/Word"
-import VirtualKeyboard from "../external/VirtualKeyboard/VirtualKeyboard"
+import Word from "./Word"
 
 afterEach(cleanup)
 
-it('should render a <Word /> and a <VirtualKeyboard />"', () => {
-  render(<App />)
-  const keyboard = screen.getByRole('widget', {name: 'Clavier virtuel'})
-  const word = screen.getByRole('widget', {name: 'Mot à trouver'})
-  expect(keyboard).not.toBeNull()
-  expect(word).not.toBeNull()
+it('should display "value" prop length <VirtualKey />"', () => {
+  render(<Word value="TOTO"/>)
+  expect(screen.getAllByRole('button')).toHaveLength(4)
 })
 
+it('should all <VirtualKey /> have <QuestionIcon /> child ', () => {
+  render(<Word value="TOTO"/>)
+  expect(screen.getAllByRole('presentation')).toHaveLength(4)
+})
 
+it('should some <VirtualKey /> have <QuestionIcon /> child', () => {
+  render(<Word usedLetter={["A", "B", "C", "D", "T"]} value="TOTO"/>)
+  expect(screen.getAllByRole('presentation')).toHaveLength(2)
+})
