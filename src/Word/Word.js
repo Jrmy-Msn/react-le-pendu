@@ -15,15 +15,19 @@ class Word extends Component {
   static propTypes = {
     value: PropTypes.string.isRequired,
     usedLetter: PropTypes.arrayOf(PropTypes.string),
+    revealLetter: PropTypes.arrayOf(PropTypes.string),
   }
 
   static defaultProps = {
-    usedLetter: []
+    usedLetter: [],
+    revealLetter: []
   }
 
   // arrow func for binding this
   feedbackLetter = (letter) => {
-    if (this.props.usedLetter.includes(letter)
+    if ((this.props.usedLetter.includes(letter)
+        || this.props.revealLetter.includes(letter)
+      )
       && this.props.value.includes(letter)) {
       return FEEDBACK_KEY.VISIBLE
     }
@@ -33,7 +37,9 @@ class Word extends Component {
 
   // arrow func for binding this
   renderLetter = (letter) => {
-    if (this.props.usedLetter.includes(letter)
+    if ((this.props.usedLetter.includes(letter)
+        || this.props.revealLetter.includes(letter)
+      )
       && this.props.value.includes(letter)) {
       return letter
     }

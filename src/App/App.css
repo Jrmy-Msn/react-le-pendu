@@ -29,8 +29,14 @@ header {
   font-size: 2rem;
 }
 
-.App header nav #restart {
+.App header nav .header-action {
+  display: flex;
+  align-items: center;
+}
+
+.App header nav .header-action .action {
   cursor: pointer;
+  margin-left: .75rem;
 }
 
 .App header nav .brand img {
@@ -75,6 +81,10 @@ header {
 
 .App .VirtualKeyboard .VirtualKey.used-nok {
   background-color: #7c3939;
+}
+
+.App .VirtualKeyboard .VirtualKey.reveal {
+  background-color: #bc8f40;
 }
 
 .App .Word {

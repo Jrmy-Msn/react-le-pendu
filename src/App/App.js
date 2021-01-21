@@ -6,7 +6,7 @@ import './App.css'
 
 import VirtualKeyboard from '../external/VirtualKeyboard/VirtualKeyboard'
 import Word from '../Word/Word'
-import {CircleNotchIcon, RedoAltIcon} from "react-line-awesome";
+import {CogIcon, RedoAltIcon} from "react-line-awesome";
 
 const N = 7
 const MAX_TRY = 11
@@ -16,12 +16,15 @@ const KEY_FEEDBACK = {
   PRESSED: 'pressed',
   USED_OK: 'used-ok',
   USED_NOK: 'used-nok',
+  REVEAL: 'reveal',
   NOT_USED: 'not-used',
 }
 
 class App extends Component {
+  gameOver = false
   state = {
     usedLetter: [],
+    revealLetter: [],
     word: '',
     currentKey: ''
   }
@@ -176,13 +179,14 @@ class App extends Component {
     const beginAt = MAX_TRY - TRY
     this.pendu.forEach((v, i) => v.visible = i < beginAt)
     for(let i = beginAt; i < beginAt + nbLetterNotInWord; i++) {
-      console.log(i)
       this.pendu[i].visible = true
     }
     this.canvas.renderAll()
   }
 
   onSelectLetter(letter) {
+    if (this.gameOver) return
+
     const {usedLetter} = this.state
 
     if (!usedLetter.includes(letter)) {
@@ -198,12 +202,14 @@ class App extends Component {
 
   // arrow func for binding this
   feedbackForCurrentKey = (letter) => {
-    const {currentKey, usedLetter, word} = this.state
+    const {currentKey, usedLetter, revealLetter, word} = this.state
     const letterIsUsed = usedLetter.includes(letter)
+    const letterRevealed = revealLetter.includes(letter)
+    console.log(letter, revealLetter)
+    if (letterRevealed) return KEY_FEEDBACK.REVEAL
     if (letterIsUsed && word.includes(letter)) return KEY_FEEDBACK.USED_OK
     if (letterIsUsed) return KEY_FEEDBACK.USED_NOK
     if (letter === currentKey) return KEY_FEEDBACK.PRESSED
-
     return KEY_FEEDBACK.NOT_USED
   }
 
@@ -236,8 +242,13 @@ class App extends Component {
 
   // arrow func for binding this
   onClickRestart = (ev) => {
-    this.setState({word: ''}, () => {
-      setTimeout(() => this.generateWord(N), 600)
+    this.gameOver = false
+    this.pendu.forEach((v, i) => v.visible = false)
+    this.renderCanvas([])
+    this.setState({word: '', usedLetter: [], revealLetter: []}, () => {
+      setTimeout(() => {
+        this.generateWord(N)
+      }, 600)
     })
   }
 
@@ -245,16 +256,23 @@ class App extends Component {
     const {word, usedLetter} = this.state
     const allLetterFound = word !== '' && word.split('').every(l => usedLetter.includes(l))
     const nbLetterNotInWord = usedLetter.filter(l => !word.split('').includes(l)).length
-    return allLetterFound
-      ? 'BRAVO !'
-      : (
-        nbLetterNotInWord >= TRY ? 'Perdu...' : ''
-      )
+
+    if (allLetterFound) {
+      this.gameOver = true
+      return (<h1 className={`end`}>BRAVO !</h1>)
+    }
+
+    if (nbLetterNotInWord >= TRY) {
+      const revealLetter = word.split('').filter(l => !usedLetter.includes(l))
+      if (!this.gameOver) this.setState({revealLetter: revealLetter})
+      this.gameOver = true
+      return (<h1 className={`end`}>Perdu...</h1>)
+    }
+    return (<span>Essais restant : {TRY - nbLetterNotInWord}</span>)
   }
 
   render() {
-    const {word, currentKey, usedLetter} = this.state
-    const end = this.didEnd()
+    const {word, currentKey, usedLetter, revealLetter} = this.state
     return (
       <div className="App">
         <header>
@@ -265,22 +283,27 @@ class App extends Component {
                 alt="Bonhomme pendu par les pieds" />
               <span>LE PENDU</span>
             </div>
-            <RedoAltIcon
-              id="restart"
-              aria-hidden="false"
-              className={`la-lg`}
-              onClick={this.onClickRestart} />
+            <div className={`header-action`}>
+              <RedoAltIcon
+                id="restart"
+                aria-hidden="false"
+                className={`la-lg action`}
+                onClick={this.onClickRestart} />
+              <CogIcon
+                id="settings"
+                aria-hidden="false"
+                className={`la-lg action`} />
+            </div>
           </nav>
         </header>
         <div className={`draw-part`}>
-          {
-            <h1 className={`end`}>{end}</h1>
-          }
+          {this.didEnd()}
           <canvas id={`pendu`}/>
         </div>
         <div className={`interactive-part`}>
           <Word
             usedLetter={usedLetter}
+            revealLetter={revealLetter}
             value={word} />
           <VirtualKeyboard
             currentKey={currentKey}

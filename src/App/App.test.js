@@ -1,22 +1,20 @@
 import React from 'react'
-import renderer from 'react-test-renderer'
 import {shallow} from 'enzyme'
 
-import Word from "./Word"
+import App from "./App";
+import VirtualKeyboard from "../external/VirtualKeyboard/VirtualKeyboard"
 
-afterEach(cleanup)
-
-it('should display "value" prop length <VirtualKey />"', () => {
-  render(<Word value="TOTO"/>)
-  expect(screen.getAllByRole('button')).toHaveLength(4)
+it('should display <VirtualKeyboard />', () => {
+  const wrapper = shallow(<App />)
+  expect(wrapper.find(VirtualKeyboard)).toHaveLength(1)
 })
 
-it('should all <VirtualKey /> have <QuestionIcon /> child ', () => {
-  render(<Word value="TOTO"/>)
-  expect(screen.getAllByRole('presentation')).toHaveLength(4)
+it('should display <canvas />', () => {
+  const wrapper = shallow(<App />)
+  expect(wrapper.find('canvas')).toHaveLength(1)
 })
 
-it('should some <VirtualKey /> have <QuestionIcon /> child', () => {
-  render(<Word usedLetter={["A", "B", "C", "D", "T"]} value="TOTO"/>)
-  expect(screen.getAllByRole('presentation')).toHaveLength(2)
+it('should display <canvas />', () => {
+  const wrapper = shallow(<App />)
+  expect(wrapper.find('canvas')).toHaveLength(1)
 })
