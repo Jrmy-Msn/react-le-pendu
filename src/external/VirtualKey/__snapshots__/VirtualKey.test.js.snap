@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`VirtualKey Component Render renders correctly 1`] = `
+<button
+  aria-label="M"
+  className="MuiButtonBase-root MuiButton-root makeStyles-root-1 MuiButton-contained VirtualKey undefined makeStyles-active-2 makeStyles-active-10 MuiButton-containedPrimary"
+  disabled={false}
+  feedback=""
+  onBlur={[Function]}
+  onClick={[Function]}
+  onDragLeave={[Function]}
+  onFocus={[Function]}
+  onKeyDown={[Function]}
+  onKeyUp={[Function]}
+  onMouseDown={[Function]}
+  onMouseLeave={[Function]}
+  onMouseOut={[Function]}
+  onMouseOver={[Function]}
+  onMouseUp={[Function]}
+  onTouchEnd={[Function]}
+  onTouchMove={[Function]}
+  onTouchStart={[Function]}
+  tabIndex={0}
+  type="button"
+>
+  <span
+    className="MuiButton-label"
+  >
+    M
+  </span>
+</button>
+`;

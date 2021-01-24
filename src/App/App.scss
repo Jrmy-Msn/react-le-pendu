@@ -46,8 +46,11 @@ header {
   width: 2.5rem;
 }
 
-.App .end {
+.App h1.end {
   margin: 0;
+}
+.App span.end {
+  margin-bottom: 1rem;
 }
 
 .App .interactive-part {

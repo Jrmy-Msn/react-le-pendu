@@ -1,12 +1,12 @@
 import React, {Component} from 'react'
 import {fabric} from 'fabric'
+import {Box, Grid, Typography, ThemeProvider, withStyles} from "@material-ui/core"
 
-import brand from '../resources/images/falling_stikman_64.svg'
-import './App.css'
+import {THEME, useStyles} from "./App.css.js"
 
 import VirtualKeyboard from '../external/VirtualKeyboard/VirtualKeyboard'
 import Word from '../Word/Word'
-import {CogIcon, RedoAltIcon} from "react-line-awesome";
+import Topbar from "../Topbar/Topbar"
 
 const N = 7
 const MAX_TRY = 11
@@ -22,11 +22,12 @@ const KEY_FEEDBACK = {
 
 class App extends Component {
   gameOver = false
+  message = ''
   state = {
     usedLetter: [],
     revealLetter: [],
     word: '',
-    currentKey: ''
+    currentKey: '',
   }
 
   componentDidMount() {
@@ -188,12 +189,14 @@ class App extends Component {
     if (this.gameOver) return
 
     const {usedLetter} = this.state
-
+    let newUsedLetter = Array.from(usedLetter)
     if (!usedLetter.includes(letter)) {
-      const newUsedLetter = [...usedLetter, letter]
+      newUsedLetter = [...usedLetter, letter]
       this.setState({usedLetter: newUsedLetter})
       this.renderCanvas(newUsedLetter)
     }
+
+    this.didEnd(newUsedLetter)
   }
 
   onPreSelectLetter(letter) {
@@ -201,16 +204,15 @@ class App extends Component {
   }
 
   // arrow func for binding this
-  feedbackForCurrentKey = (letter) => {
+  feedbackForCurrentKey = (classes, letter) => {
     const {currentKey, usedLetter, revealLetter, word} = this.state
     const letterIsUsed = usedLetter.includes(letter)
     const letterRevealed = revealLetter.includes(letter)
-    console.log(letter, revealLetter)
-    if (letterRevealed) return KEY_FEEDBACK.REVEAL
-    if (letterIsUsed && word.includes(letter)) return KEY_FEEDBACK.USED_OK
-    if (letterIsUsed) return KEY_FEEDBACK.USED_NOK
-    if (letter === currentKey) return KEY_FEEDBACK.PRESSED
-    return KEY_FEEDBACK.NOT_USED
+    if (letterRevealed) return classes[KEY_FEEDBACK.REVEAL]
+    if (letterIsUsed && word.includes(letter)) return classes[KEY_FEEDBACK.USED_OK]
+    if (letterIsUsed) return classes[KEY_FEEDBACK.USED_NOK]
+    if (letter === currentKey) return classes[KEY_FEEDBACK.PRESSED]
+    return classes[KEY_FEEDBACK.NOT_USED]
   }
 
   // arrow func for binding this
@@ -245,79 +247,73 @@ class App extends Component {
     this.gameOver = false
     this.pendu.forEach((v, i) => v.visible = false)
     this.renderCanvas([])
-    this.setState({word: '', usedLetter: [], revealLetter: []}, () => {
+    this.setState({word: '', message: '', usedLetter: [], revealLetter: []}, () => {
       setTimeout(() => {
         this.generateWord(N)
       }, 600)
     })
   }
 
-  didEnd() {
-    const {word, usedLetter} = this.state
+  didEnd(usedLetter) {
+    const {word} = this.state
     const allLetterFound = word !== '' && word.split('').every(l => usedLetter.includes(l))
     const nbLetterNotInWord = usedLetter.filter(l => !word.split('').includes(l)).length
-
+    let newMessage = (<span className={`end`}>Essais restant : {TRY - nbLetterNotInWord}</span>)
     if (allLetterFound) {
       this.gameOver = true
-      return (<h1 className={`end`}>BRAVO !</h1>)
+      newMessage = (<Typography variant="h4" className={`end`}>BRAVO !</Typography>)
     }
 
     if (nbLetterNotInWord >= TRY) {
       const revealLetter = word.split('').filter(l => !usedLetter.includes(l))
-      if (!this.gameOver) this.setState({revealLetter: revealLetter})
+      this.setState({revealLetter: revealLetter})
       this.gameOver = true
-      return (<h1 className={`end`}>Perdu...</h1>)
+      newMessage = (<Typography variant="h4" className={`end`}>Perdu...</Typography>)
     }
-    return (<span>Essais restant : {TRY - nbLetterNotInWord}</span>)
+
+    this.setState({message: newMessage})
   }
 
   render() {
-    const {word, currentKey, usedLetter, revealLetter} = this.state
+    const {classes} = this.props
+    const {word, message, usedLetter, revealLetter} = this.state
     return (
-      <div className="App">
-        <header>
-          <nav>
-            <div className="brand">
-              <img
-                src={brand}
-                alt="Bonhomme pendu par les pieds" />
-              <span>LE PENDU</span>
-            </div>
-            <div className={`header-action`}>
-              <RedoAltIcon
-                id="restart"
-                aria-hidden="false"
-                className={`la-lg action`}
-                onClick={this.onClickRestart} />
-              <CogIcon
-                id="settings"
-                aria-hidden="false"
-                className={`la-lg action`} />
-            </div>
-          </nav>
-        </header>
-        <div className={`draw-part`}>
-          {this.didEnd()}
-          <canvas id={`pendu`}/>
-        </div>
-        <div className={`interactive-part`}>
-          <Word
-            usedLetter={usedLetter}
-            revealLetter={revealLetter}
-            value={word} />
-          <VirtualKeyboard
-            currentKey={currentKey}
-            onKeyDown={this.handleKeyDown}
-            onKeyUp={this.handleKeyUp}
-            onClickForKey={this.handleClickForKey}
-            onMouseOverForKey={this.handleMouseOverForKey}
-            onMouseOutForKey={this.handleMouseOutForKey}
-            feedbackForCurrentKey={this.feedbackForCurrentKey}
-          />
-        </div>
-      </div>
+      <ThemeProvider theme={THEME.dark}>
+        <Box bgcolor={'secondary.light'} className={`${classes.h100}`}>
+          <Grid container className={`${classes.h100}`}>
+            <Grid item xs={12}>
+              <Topbar game={this.gameOver} gameAction={this.onClickRestart}/>
+            </Grid>
+            <Grid item container justify={'center'} xs={12}>
+              <canvas id={`pendu`} className={`${classes.h100}`} />
+            </Grid>
+            <Grid item container alignItems={'center'} justify={'center'} xs={12}>
+              {message}
+            </Grid>
+            <Grid item container alignItems={'flex-end'} xs={12}>
+              <Grid item container justify={'center'} xs={12}>
+                <Word
+                  usedLetter={usedLetter}
+                  revealLetter={revealLetter}
+                  value={word} />
+              </Grid>
+              <Grid item xs={12}>
+                <VirtualKeyboard
+                  className={`${classes.keyboard}`}
+                  onKeyDown={this.handleKeyDown}
+                  onKeyUp={this.handleKeyUp}
+                  onClickForKey={this.handleClickForKey}
+                  onMouseOverForKey={this.handleMouseOverForKey}
+                  onMouseOutForKey={this.handleMouseOutForKey}
+                  feedbackForCurrentKey={(letter) => this.feedbackForCurrentKey(classes, letter)}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+        </Box>
+      </ThemeProvider>
     )
   }
 }
 
-export default App
+export default withStyles(useStyles, { withTheme: true })(App)
