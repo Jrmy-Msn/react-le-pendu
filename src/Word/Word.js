@@ -37,7 +37,6 @@ const Word = ({value, usedLetter, revealLetter}) => {
     const vKey = document.querySelectorAll('.VirtualKey')
     Array.from(vKey).forEach(v => {
       v.style.width = `${document.body.offsetWidth / (value.length + 5)}px`
-      console.log('WIDTH', v.style.width)
     })
   })
 

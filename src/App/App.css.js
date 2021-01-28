@@ -11,6 +11,9 @@ const breakpoints = {
 }
 export const THEME = {
   dark: createMuiTheme({
+    props: {
+      name: 'dark',
+    },
     breakpoints,
     palette: {
       primary: {
@@ -23,13 +26,19 @@ export const THEME = {
   }),
 
   light: createMuiTheme({
+    props: {
+      name: 'light',
+    },
     breakpoints,
     palette: {
       primary: {
-        main: '#ececec',
+        main: '#f1F1F1',
+        ligth: '#f3f3f3',
+        dark: '#a8a8a8'
       },
       secondary: {
         main: '#c8b57d',
+        light: '#e0e0e0',
       }
     },
   }),

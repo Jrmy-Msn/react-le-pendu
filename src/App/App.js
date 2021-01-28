@@ -1,15 +1,25 @@
 import React, {Component} from 'react'
 import {fabric} from 'fabric'
-import {Box, Grid, Typography, ThemeProvider, withStyles} from "@material-ui/core"
+import {
+  Box,
+  Grid,
+  Typography,
+  ThemeProvider,
+  withStyles,
+} from "@material-ui/core"
 
 import {THEME, useStyles} from "./App.css.js"
 
 import VirtualKeyboard from '../external/VirtualKeyboard/VirtualKeyboard'
 import Word from '../Word/Word'
 import Topbar from "../Topbar/Topbar"
+import Settings from "../Settings/Settings";
 
 const N = 7
+const MIN_TRY = 1
 const MAX_TRY = 11
+const MAX_LENGTH = 20
+const MIN_LENGTH = 3
 const TRY = 6
 
 const KEY_FEEDBACK = {
@@ -24,27 +34,34 @@ class App extends Component {
   gameOver = false
   message = ''
   state = {
+    theme: THEME.dark,
     usedLetter: [],
     revealLetter: [],
     word: '',
     currentKey: '',
+    nbTries: TRY,
+    wordLength: N,
+    randomWordLength: false,
+    settingsIsOpen: false
   }
 
   componentDidMount() {
-    this.generateWord(N)
+    this.generateWord({n: N})
     this.initializeCanvas()
-    this.renderCanvas([])
+    this.renderCanvas([], TRY)
   }
 
-  async generateWord(n) {
-    let word
+  async generateWord(options) {
+    let {word, n} = options
     let aNotLetter = []
     try {
-      const file = await import(`../resources/dictionary/dict.fr.${n}.json`)
-      const words = file && file.default ? file.default : []
-      const rand = Math.floor(Math.random() * words.length + 1)
+      if (!word) {
+        const file = await import(`../resources/dictionary/dict.fr.${n}.json`)
+        const words = file && file.default ? file.default : []
+        const rand = Math.floor(Math.random() * words.length + 1)
 
-      word = words[rand]
+        word = words[rand]
+      }
     } catch(err) {
       word = "APPELEZ LE DEVELOPPEUR IL Y A UNE ERREUR"
     } finally {
@@ -54,6 +71,11 @@ class App extends Component {
       aNotLetter = word.split('').filter(l => !l.match(/[A-Z]/))
       this.setState({word: word, usedLetter: aNotLetter})
     }
+  }
+
+  checkKeyEventVirtualKeyboard(event) {
+    return event.target.getAttribute('id') !== 'word_value'
+
   }
 
   initializeCanvas() {
@@ -174,10 +196,10 @@ class App extends Component {
     this.canvas.add(...this.pendu)
   }
 
-  renderCanvas(usedLetter) {
+  renderCanvas(usedLetter, nbTries) {
     const {word} = this.state
     const nbLetterNotInWord = usedLetter.filter(l => !word.split('').includes(l)).length
-    const beginAt = MAX_TRY - TRY
+    const beginAt = MAX_TRY - nbTries
     this.pendu.forEach((v, i) => v.visible = i < beginAt)
     for(let i = beginAt; i < beginAt + nbLetterNotInWord; i++) {
       this.pendu[i].visible = true
@@ -185,15 +207,19 @@ class App extends Component {
     this.canvas.renderAll()
   }
 
+  randomWordLenth() {
+    return Math.floor(Math.random() * (MAX_LENGTH - MIN_LENGTH) + MIN_LENGTH)
+  }
+
   onSelectLetter(letter) {
     if (this.gameOver) return
 
-    const {usedLetter} = this.state
+    const {usedLetter, nbTries} = this.state
     let newUsedLetter = Array.from(usedLetter)
     if (!usedLetter.includes(letter)) {
       newUsedLetter = [...usedLetter, letter]
       this.setState({usedLetter: newUsedLetter})
-      this.renderCanvas(newUsedLetter)
+      this.renderCanvas(newUsedLetter, nbTries)
     }
 
     this.didEnd(newUsedLetter)
@@ -232,39 +258,83 @@ class App extends Component {
 
   // arrow func for binding this
   handleKeyDown = ev => {
-    const key = ev.key && ev.key.toUpperCase()
-    this.onPreSelectLetter(key)
+    if (this.checkKeyEventVirtualKeyboard(ev)) {
+      const key = ev.key && ev.key.toUpperCase()
+      this.onPreSelectLetter(key)
+    }
   }
 
   // arrow func for binding this
   handleKeyUp = (ev) => {
-    const key = ev.key && ev.key.toUpperCase()
-    this.onSelectLetter(key)
+    if (this.checkKeyEventVirtualKeyboard(ev)) {
+      const key = ev.key && ev.key.toUpperCase()
+      this.onSelectLetter(key)
+    }
   }
 
   // arrow func for binding this
-  onClickRestart = (ev) => {
+  handleThemeChange = (event) => {
+    const checked = event.target.checked
+    this.setState({theme: checked ? THEME.light : THEME.dark})
+  }
+
+  // arrow func for binding this
+  handleSettingsValid = (options) => {
+    const {tries, length, random, word} = options
+    this.setState({
+      word: word,
+      nbTries: tries,
+      randomWordLength:
+      random, wordLength:
+      length,
+      settingsIsOpen: false
+    })
+    const newWordLength = random ? this.randomWordLenth() : length
+    this.restart({tries: tries, length: newWordLength, word})
+  }
+
+  // arrow func for binding this
+  handleSettingsCancel = () => {
+    this.setState({settingsIsOpen: false})
+  }
+
+  // arrow func for binding this
+  onClickSettings = () => {
+    const {settingsIsOpen} = this.state
+    this.setState({settingsIsOpen: !settingsIsOpen})
+  }
+
+  // arrow func for binding this
+  onClickRestart = () => {
+    const {wordLength, randomWordLength, nbTries} = this.state
+    const newWordLength = randomWordLength ? this.randomWordLenth() : wordLength
+    this.restart({tries: nbTries, length: newWordLength})
+  }
+
+  // arrow func for binding this
+  restart = (options) => {
+    const {length, tries, word} = options
     this.gameOver = false
     this.pendu.forEach((v, i) => v.visible = false)
-    this.renderCanvas([])
+    this.renderCanvas([], tries)
     this.setState({word: '', message: '', usedLetter: [], revealLetter: []}, () => {
       setTimeout(() => {
-        this.generateWord(N)
+        this.generateWord({word: word, n:length})
       }, 600)
     })
   }
 
   didEnd(usedLetter) {
-    const {word} = this.state
+    const {word, nbTries} = this.state
     const allLetterFound = word !== '' && word.split('').every(l => usedLetter.includes(l))
     const nbLetterNotInWord = usedLetter.filter(l => !word.split('').includes(l)).length
-    let newMessage = (<span className={`end`}>Essais restant : {TRY - nbLetterNotInWord}</span>)
+    let newMessage = (<span className={`end`}>Essais restant : {nbTries - nbLetterNotInWord}</span>)
     if (allLetterFound) {
       this.gameOver = true
       newMessage = (<Typography variant="h4" className={`end`}>BRAVO !</Typography>)
     }
 
-    if (nbLetterNotInWord >= TRY) {
+    if (nbLetterNotInWord >= nbTries) {
       const revealLetter = word.split('').filter(l => !usedLetter.includes(l))
       this.setState({revealLetter: revealLetter})
       this.gameOver = true
@@ -276,13 +346,13 @@ class App extends Component {
 
   render() {
     const {classes} = this.props
-    const {word, message, usedLetter, revealLetter} = this.state
+    const {theme, word, wordLength, randomWordLength, nbTries, message, usedLetter, revealLetter, settingsIsOpen} = this.state
     return (
-      <ThemeProvider theme={THEME.dark}>
+      <ThemeProvider theme={theme}>
         <Box bgcolor={'secondary.light'} className={`${classes.h100}`}>
           <Grid container className={`${classes.h100}`}>
             <Grid item xs={12}>
-              <Topbar game={this.gameOver} gameAction={this.onClickRestart}/>
+              <Topbar game={this.gameOver} settingsAction={this.onClickSettings} gameAction={this.onClickRestart}/>
             </Grid>
             <Grid item container justify={'center'} xs={12}>
               <canvas id={`pendu`} className={`${classes.h100}`} />
@@ -299,6 +369,7 @@ class App extends Component {
               </Grid>
               <Grid item xs={12}>
                 <VirtualKeyboard
+                  theme={theme}
                   className={`${classes.keyboard}`}
                   onKeyDown={this.handleKeyDown}
                   onKeyUp={this.handleKeyUp}
@@ -311,6 +382,18 @@ class App extends Component {
             </Grid>
           </Grid>
         </Box>
+        <Settings
+          open={settingsIsOpen}
+          minTry={MIN_TRY}
+          maxTry={MAX_TRY}
+          minLength={MIN_LENGTH}
+          maxLength={MAX_LENGTH}
+          randomWordLength={randomWordLength}
+          nbTries={nbTries}
+          wordLength={wordLength}
+          onThemeChange={this.handleThemeChange}
+          onValid={this.handleSettingsValid}
+          onCancel={this.handleSettingsCancel}/>
       </ThemeProvider>
     )
   }

@@ -13,7 +13,7 @@ export const useStyles = makeStyles(theme => ({
     }
   },
   settings: {
-    color: theme.palette.primary.light,
+    color: theme.palette.primary.dark,
     marginLeft: '1rem'
   }
 }))
